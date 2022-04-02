@@ -57,5 +57,52 @@ router.get('/getnotes',fetchuser,async(req,res)=>{
     }
 });
 
+//creat an route for updating the note of a single user
+router.put('/updatenote/:id',fetchuser,async(req,res)=>{    
+    try {
+        const user=req.user;
+        const {title,description,tag}=req.body;
+        let notes={};
+        if(!title){res.status(400).json({error:"Title is required"});}
+        if(!description){res.status(400).json({error:"Description is required"});}
+        if(!tag){res.status(400).json({error:"Tag is required"});}
+        notes={title,description,tag};
+
+        //check whether the note exists or not
+        const noteFounded=await Note.findById(req.params.id);
+        if(!noteFounded){res.status(400).json({error:"Note not found"});}
+
+        //check whether the note belongs to the user or not
+        if(noteFounded.userId.toString()!==user.id){res.status(401).json({error:"Unauthorized"});}
+
+        //update the note
+        const note=await Note.findByIdAndUpdate(req.params.id,{$set:notes},{new:true});
+        res.json({message:"Note updated successfully",note});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error:"Something went wrong"});    
+    }
+}   );  
+
+
+//create an route for deleting the note of a single user
+router.delete('/deletenote/:id',fetchuser,async(req,res)=>{
+
+    try {
+        const user=req.user;
+
+        const note=await Note.findById(req.params.id);
+        if(!note){res.status(400).json({error:"Note not found"});}
+
+        //check whether the note belongs to the user or not
+        if(note.userId.toString()!==user.id){res.status(401).json({error:"Unauthorized"});}
+        
+        await Note.findByIdAndDelete(req.params.id);
+        res.json({message:"Note deleted successfully"});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error:"Something went wrong"});    
+    }
+})
 module.exports=router;
 

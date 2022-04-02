@@ -49,8 +49,7 @@ router.post('/createUser',[
             }
         }
         const authToken=jwt.sign({
-            data,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60)},process.env.jwt_securekey);
+            data},process.env.jwt_securekey);
 
 
 
@@ -99,8 +98,7 @@ router.post('/login',[
         }
     
         const authToken=jwt.sign({
-            payload,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60)},process.env.jwt_securekey);
+            payload},process.env.jwt_securekey);
     
         res.send({authToken});
         

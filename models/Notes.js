@@ -11,8 +11,8 @@ const NotesSchema=new Schema({
         required:true
     },
     userId:{
-        type:String,
-        required:true
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'user'
     },
     tag:{
         type:String,
