@@ -30,11 +30,12 @@ router.post('/createUser',[
     //encypting the password
     const salt= await bcrypt.genSalt(10);
     const securePassword=await bcrypt.hash(req.body.password,salt);
-
+    var success=false;
     try {
         let user=await User.findOne({email:req.body.email});
         if(user){
-            return res.status(400).json({error:"Sorry a user with this email already exists"})
+            
+            return res.status(400).json({success,error:"Sorry a user with this email already exists"})
         }
         user=await User.create({
             name: req.body.name,
@@ -48,16 +49,17 @@ router.post('/createUser',[
                 id:user.id
             }
         }
+
         const authToken=jwt.sign({
             data},process.env.jwt_securekey);
 
 
-
-        res.send({authToken});
+        success=true;
+        res.send({success,authToken});
         
     } catch (error) {
-        console.error(error);
-        res.status(500).send({error:error.message})
+        
+        res.status(500).send({success,error:error.message})
     }
     
     
@@ -81,13 +83,14 @@ router.post('/login',[
 
     try {
         const user=await User.findOne({email});
+        var success=false;
         if(!user){
-            return res.status(400).json({error:"Please provide the right credentials"});
+            return res.status(400).json({success,error:"Please provide the right credentials"});
         }
     
         const passwordCompared=await bcrypt.compare(password,user.password);
         if(!passwordCompared){
-            return res.status(400).json({error:"Please provide the right credentials"});
+            return res.status(400).json({success,error:"Please provide the right credentials"});
     
         }
     
@@ -100,7 +103,7 @@ router.post('/login',[
         const authToken=jwt.sign({
             payload},process.env.jwt_securekey);
     
-        res.send({authToken});
+        res.send({success:true,authToken});
         
     } catch (error) {
         console.error(error);
